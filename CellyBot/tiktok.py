@@ -6,7 +6,6 @@ from TikTokLive.events import ConnectEvent
 
 class TikTok:
     """
-    
     """
     def __init__(self, tiktok: str):
         self.tiktok = tiktok.lstrip("@")
@@ -19,7 +18,6 @@ class TikTok:
         self.client.logger.setLevel(LogLevel.INFO.value)
     
     """
-    
     """    
     async def on_connect(self, event: ConnectEvent):
         self.client.logger.info(f"Connected to @{event.unique_id}")
@@ -27,7 +25,7 @@ class TikTok:
     async def check_live(self):
         while True:
             while not await self.client.is_live():
-                self.client.logger.info("\nClient is currently not live.\nChecking again in 60 seconds.")
+                self.client.logger.info(f"\n`{self.tiktok}` is currently not live.\nChecking again in 60 seconds.")
                 await asyncio.sleep(60)
                 
             self.client.logger.info("Requested client is live.")
@@ -38,7 +36,3 @@ class TikTok:
         
     def check_followers():
         pass
-
-if __name__ == "__main__":
-    tiktok = TikTok("nahcelly")
-    tiktok.run()
