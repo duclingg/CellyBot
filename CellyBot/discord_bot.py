@@ -9,11 +9,13 @@ class DiscordBot:
     def __init__(self):
         load_dotenv()
         
-        self.tiktok = TikTok("nahcelly")
+        self.tiktok = TikTok("hyperzotic", self)
+        self.tiktok_task = None
         
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
         self.VERIFIED_ROLE_NAME = os.getenv("VERIFIED_ROLE_NAME")
+        self.CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
         
         intents = discord.Intents.default()
         intents.message_content = True
@@ -33,7 +35,7 @@ class DiscordBot:
             
             # wait for discord bot to start
             if self.tiktok:
-                asyncio.create_task(self.tiktok.run())
+                self.tiktok_task = asyncio.create_task(self.tiktok.run())
             
     def commands(self):
         @self.bot.command()
@@ -57,5 +59,4 @@ class DiscordBot:
                 await ctx.send(f"Could not verify `{username}` as a follower.\nPlease follow `@nahcelly` on TikTok and try again.")
                 
     async def run(self):
-        await self.bot.start(self.TOKEN)
-            
+        await self.bot.start(self.TOKEN)            

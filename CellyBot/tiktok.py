@@ -7,7 +7,9 @@ from TikTokLive.events import ConnectEvent
 class TikTok:
     """
     """
-    def __init__(self, tiktok: str):
+    def __init__(self, tiktok: str, discord_bot):
+        self.discord_bot = discord_bot
+        
         self.tiktok = tiktok.lstrip("@")
         self.client = TikTokLiveClient(unique_id=f"@{self.tiktok}")
         self.is_live = False
@@ -21,6 +23,11 @@ class TikTok:
     """    
     async def on_connect(self, event: ConnectEvent):
         self.client.logger.info(f"Connected to @{event.unique_id}")
+        
+        # send alert if live
+        channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
+        if channel:
+            await channel.send(f"@{self.tiktok} is **LIVE** on TikTok!")
         
     async def check_live(self):
         while True:
