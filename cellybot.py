@@ -1,3 +1,4 @@
+from followers import *
 import os
 import discord
 from dotenv import load_dotenv
@@ -21,8 +22,8 @@ async def on_ready():
     print('---------')
     
 @bot.command()
-async def verify(ctx, tiktok_username: str):
-    await ctx.send(f'Checking if `{tiktok_username}` follows NahCelly... ')
+async def verify(ctx, username: str):
+    await ctx.send(f'Checking if `{username}` follows NahCelly... ')
     
     # FAKE PASS
     verified = True
