@@ -3,9 +3,9 @@ import asyncio
 from discord_bot import *
 
 async def cellybot():
-    discord_bot = DiscordBot()
+    bot = DiscordBot(tiktok="nahcelly")
     
-    await discord_bot.run()
+    await bot.run()
 
 if __name__ == "__main__":
     try:
