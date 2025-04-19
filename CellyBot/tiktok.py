@@ -1,5 +1,7 @@
 import asyncio
+import pytz
 
+from datetime import datetime
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
 from TikTokLive.events import ConnectEvent
@@ -18,6 +20,7 @@ class TikTok:
         self.tiktok = tiktok
         self.client = TikTokLiveClient(unique_id=f"@{self.tiktok}")
         self.is_live = False
+        self.live_link = f"https://www.tiktok.com/@{self.tiktok}/live"
         
         # attach event handlers
         self.client.on(ConnectEvent)(self.on_connect)
@@ -45,10 +48,12 @@ class TikTok:
         """
         self.client.logger.info(f"Connected to @{event.unique_id}")
         
-        # send alert if live
+        # send alert with link and timestamp if live
         channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
         if channel:
-            await channel.send(f"@{self.tiktok} is **LIVE** on TikTok!")
+            now = datetime.now(pytz.timezone('US/Central'))
+            timestamp = now.strftime("%m/%d/%Y %I:%M %p")
+            await channel.send(f"# `@{self.tiktok}` is **LIVE** on TikTok!\nDate/Time: {timestamp}\n### Join the stream:\n{self.live_link}")
                 
     async def run(self):
         await self.check_live()
