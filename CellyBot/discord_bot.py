@@ -42,9 +42,9 @@ class DiscordBot:
             print(f"Logged in as {self.bot.user} (ID: {self.bot.user.id})")
             print("----------------------------------------------------\n")
             
-            # wait for discord bot to start
+            # wait for discord bot to start and check live status
             if self.tiktok_client:
-                self.tiktok_task = asyncio.create_task(self.tiktok_client.run())
+                self.tiktok_task = asyncio.create_task(self.tiktok_client.check_live())
             
     def commands(self):
         @self.bot.command()
@@ -69,3 +69,17 @@ class DiscordBot:
                 
     async def run(self):
         await self.bot.start(self.TOKEN)            
+        
+    async def shutdown(self):
+        if self.tiktok_task:
+            self.tiktok_task.cancel()
+            try:
+                await self.tiktok_task
+            except asyncio.CancelledError:
+                pass
+            
+        if self.tiktok_client.client.is_connected:
+            await self.tiktok_client.client.disconnect()
+            
+        await self.bot.close()
+            

@@ -52,11 +52,8 @@ class TikTok:
         channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
         if channel:
             now = datetime.now(pytz.timezone('US/Central'))
-            timestamp = now.strftime("%m/%d/%Y %I:%M %p")
-            await channel.send(f"# `@{self.tiktok}` is **LIVE** on TikTok!\nDate/Time: {timestamp}\n### Join the stream:\n{self.live_link}")
-                
-    async def run(self):
-        await self.check_live()
+            timestamp = now.strftime("`%m/%d/%y`\n`%I:%M %p`")
+            await channel.send(f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}")
         
     def check_followers():
         pass
