@@ -68,18 +68,4 @@ class DiscordBot:
                 await ctx.send(f"Could not verify `@{username}` as a follower.\nPlease follow `@{self.tiktok}` on TikTok and try again.")
                 
     async def run(self):
-        await self.bot.start(self.TOKEN)            
-        
-    async def shutdown(self):
-        if self.tiktok_task:
-            self.tiktok_task.cancel()
-            try:
-                await self.tiktok_task
-            except asyncio.CancelledError:
-                pass
-            
-        if self.tiktok_client.client.is_connected:
-            await self.tiktok_client.client.disconnect()
-            
-        await self.bot.close()
-            
+        await self.bot.start(self.TOKEN)

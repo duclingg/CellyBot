@@ -4,7 +4,7 @@ import pytz
 from datetime import datetime
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
-from TikTokLive.events import ConnectEvent
+from TikTokLive.events import ConnectEvent, DisconnectEvent, LiveEndEvent
 
 class TikTok:
     def __init__(self, bot, tiktok: str):
@@ -24,6 +24,8 @@ class TikTok:
         
         # attach event handlers
         self.client.on(ConnectEvent)(self.on_connect)
+        self.client.on(DisconnectEvent)(self.on_disconnect)
+        self.client.on(LiveEndEvent)(self.on_live_end)
         
         self.client.logger.setLevel(LogLevel.INFO.value)
         
@@ -46,7 +48,7 @@ class TikTok:
         Args:
             event (ConnectEvent): Connects to the Event using the `TikTokLive` API
         """
-        self.client.logger.info(f"Connected to @{event.unique_id}")
+        self.client.logger.info(f"(ConnectEvent) Connected to @{event.unique_id}")
         
         # send alert with link and timestamp if live
         channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
@@ -54,6 +56,13 @@ class TikTok:
             now = datetime.now(pytz.timezone('US/Central'))
             timestamp = now.strftime("`%m/%d/%y`\n`%I:%M %p`")
             await channel.send(f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}")
+            
+    async def on_disconnect(self, event: DisconnectEvent):
+        self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}")
+        asyncio.create_task(self.check_live())
+    
+    async def on_live_end(self, event: LiveEndEvent):
+        self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from @{self.tiktok}")
         
-    def check_followers():
+    def check_followers(self):
         pass
