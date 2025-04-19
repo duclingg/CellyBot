@@ -25,14 +25,14 @@ class TikTok:
     async def check_live(self):
         while True:
             while not await self.client.is_live():
-                self.client.logger.info(f"\n`{self.tiktok}` is currently not live.\nChecking again in 60 seconds.")
+                self.client.logger.info(f"\n`{self.tiktok}` is currently not live.\nChecking again in 60 seconds.\n")
                 await asyncio.sleep(60)
                 
             self.client.logger.info("Requested client is live.")
             await self.client.connect()
                 
-    def run(self):
-        asyncio.run(self.check_live())
+    async def run(self):
+        await self.check_live()
         
     def check_followers():
         pass

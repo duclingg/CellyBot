@@ -1,9 +1,15 @@
+import asyncio
+
 from discord_bot import *
-from tiktok import *
+
+async def cellybot():
+    discord_bot = DiscordBot()
+    
+    await discord_bot.run()
 
 if __name__ == "__main__":
-    discord_bot = DiscordBot()
-    discord_bot.run()
-    
-    tiktok = TikTok("nahcelly")
-    tiktok.run()
+    try:
+        print("Starting CellyBot...")
+        asyncio.run(cellybot())
+    except KeyboardInterrupt:
+        print("\nShutting down...")

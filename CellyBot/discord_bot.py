@@ -1,6 +1,7 @@
 import os
 import discord
 
+from tiktok import *
 from dotenv import load_dotenv
 from discord.ext import commands
 
@@ -8,12 +9,12 @@ class DiscordBot:
     def __init__(self):
         load_dotenv()
         
+        self.tiktok = TikTok("nahcelly")
+        
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
         self.VERIFIED_ROLE_NAME = os.getenv("VERIFIED_ROLE_NAME")
         
-        self.tiktok = TikTok("nahcelly")
-
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
@@ -26,8 +27,13 @@ class DiscordBot:
     def setup(self):
         @self.bot.event
         async def on_ready():
+            print("\n----------------------------------------------------")
             print(f"Logged in as {self.bot.user} (ID: {self.bot.user.id})")
-            print("-----------")
+            print("----------------------------------------------------\n")
+            
+            # wait for discord bot to start
+            if self.tiktok:
+                asyncio.create_task(self.tiktok.run())
             
     def commands(self):
         @self.bot.command()
@@ -35,7 +41,7 @@ class DiscordBot:
             await ctx.send(f"Checking if `{username}` follows `nahcelly`")
             
             # FAKE PASS
-            verified = False
+            verified = True
             
             if verified:
                 guild = discord.utils.get(self.bot.guilds, id=self.GUILD_ID)
@@ -50,6 +56,6 @@ class DiscordBot:
             else:
                 await ctx.send(f"Could not verify `{username}` as a follower.\nPlease follow `@nahcelly` on TikTok and try again.")
                 
-    def run(self):
-        self.bot.run(self.TOKEN)
+    async def run(self):
+        await self.bot.start(self.TOKEN)
             
