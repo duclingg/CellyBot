@@ -1,4 +1,4 @@
-from followers import *
+from tiktok import *
 import os
 import discord
 from dotenv import load_dotenv
