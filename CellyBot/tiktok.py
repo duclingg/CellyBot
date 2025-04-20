@@ -23,9 +23,9 @@ class TikTok:
         self.live_link = f"https://www.tiktok.com/@{self.tiktok}/live"
         
         # attach event handlers
-        self.client.on(ConnectEvent)(self.on_connect)
-        self.client.on(DisconnectEvent)(self.on_disconnect)
-        self.client.on(LiveEndEvent)(self.on_live_end)
+        self.client.add_listener(ConnectEvent, self.on_connect)
+        self.client.add_listener(DisconnectEvent, self.on_disconnect)
+        self.client.add_listener(LiveEndEvent, self.on_live_end)
         
         self.client.logger.setLevel(LogLevel.INFO.value)
         
@@ -63,6 +63,7 @@ class TikTok:
     
     async def on_live_end(self, event: LiveEndEvent):
         self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from @{self.tiktok}")
+        self.shutdown_client()
         
     def check_followers(self):
         pass
