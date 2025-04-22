@@ -47,10 +47,10 @@ class TikTok:
                 
     async def on_connect(self, event: ConnectEvent):
         """
-        When connected to live stream, send alert to Discord Channel
+        When connected to live stream, send alert to Discord Channel. Alert is only sent once per day.
 
         Args:
-            event (ConnectEvent): Connects to the Event using the `TikTokLive` API
+            event (ConnectEvent): Connects to the live using the `TikTokLive` API
         """
         self.client.logger.info(f"(ConnectEvent) Connected to @{event.unique_id}")
         
@@ -74,23 +74,52 @@ class TikTok:
                 self.alert_sent_date = current_date
         
     async def on_disconnect(self, event: DisconnectEvent):
+        """
+        When client disconnects, log and attempt to reconnect.
+        
+        Args:
+            event (DisconnectEvent): Disconnected from the live client.
+        """
         self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}, reconnecting...")
     
     async def on_live_end(self, event: LiveEndEvent):
+        """
+        Detects if the live is ending by the client.
+
+        Args:
+            event (LiveEndEvent): Live detected as ending, disconnect after.
+        """
         self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from @{self.tiktok}")
             
     def in_timeframe(self, current_time):
-        start_time = time(11, 0)
+        """
+        Returns a Boolean if the `current_time` is within the specified timeframe (US/Central).
+
+        Args:
+            current_time (datetime): The current time
+
+        Returns:
+            Bool: Returns True if the `current_time` is within the timeframe, False otherwise.
+        """
+        start_time = time(11, 13)
         end_time = time(23, 0)
         
         return start_time <= current_time <= end_time
     
     async def run_client(self):
-        now = datetime.now(self.tz)
-        current_time = now.time()
+        """
+        Starts the TikTokLive client if it's within the specific timeframe.
+        """
+        while True:
+            now = datetime.now(self.tz)
+            current_time = now.time()
         
-        if self.in_timeframe(current_time):
-            await self.check_live()
+            if self.in_timeframe(current_time):
+                await self.check_live()
+                self.client.logger.info("Starting live checks.")
+            else:
+                self.client.logger.info("Not within timeframe, TikTokLive client not started.")
+                await asyncio.sleep(60)
         
     def check_followers(self):
         pass
