@@ -44,7 +44,7 @@ class DiscordBot:
             
             # wait for discord bot to start and check live status
             if self.tiktok_client:
-                self.tiktok_task = asyncio.create_task(self.tiktok_client.check_live())
+                self.tiktok_task = await self.tiktok_client.run_client()
             
     def verify(self):
         @self.bot.command()
