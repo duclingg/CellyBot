@@ -23,9 +23,9 @@ class TikTok:
         self.live_link = f"https://www.tiktok.com/@{self.tiktok}/live"
         
         # attach event handlers
-        self.client.on(ConnectEvent)(self.on_connect)
-        self.client.on(DisconnectEvent)(self.on_disconnect)
-        self.client.on(LiveEndEvent)(self.on_live_end)
+        self.client.add_listener(ConnectEvent, self.on_connect)
+        # self.client.add_listener(DisconnectEvent, self.on_disconnect)
+        self.client.add_listener(LiveEndEvent, self.on_live_end)
         
         self.client.logger.setLevel(LogLevel.INFO.value)
         
@@ -55,11 +55,14 @@ class TikTok:
         if channel:
             now = datetime.now(pytz.timezone('US/Central'))
             timestamp = now.strftime("`%m/%d/%y`\n`%I:%M %p`")
-            await channel.send(f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}")
+            msg = await channel.send(
+                f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}"
+            )
+            await msg.publish()
             
-    async def on_disconnect(self, event: DisconnectEvent):
-        self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}")
-        asyncio.create_task(self.check_live())
+    # async def on_disconnect(self, event: DisconnectEvent):
+    #     self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}")
+        # asyncio.create_task(self.check_live())
     
     async def on_live_end(self, event: LiveEndEvent):
         self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from @{self.tiktok}")

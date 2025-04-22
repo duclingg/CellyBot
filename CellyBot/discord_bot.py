@@ -13,7 +13,7 @@ class DiscordBot:
         Args:
             tiktok (str): The username of the TikTok streamer to be used. `@` symbol is not required.
         """
-        load_dotenv()
+        load_dotenv(override=True)
         
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
@@ -33,7 +33,7 @@ class DiscordBot:
         self.bot = commands.Bot(command_prefix='!', intents=intents)
         
         self.setup()
-        self.commands()
+        self.verify()
         
     def setup(self):
         @self.bot.event
@@ -46,7 +46,7 @@ class DiscordBot:
             if self.tiktok_client:
                 self.tiktok_task = asyncio.create_task(self.tiktok_client.check_live())
             
-    def commands(self):
+    def verify(self):
         @self.bot.command()
         async def verify(ctx, username: str):
             await ctx.send(f"Checking if `@{username}` follows `@{self.tiktok}`")
@@ -57,7 +57,7 @@ class DiscordBot:
             if verified:
                 guild = discord.utils.get(self.bot.guilds, id=self.GUILD_ID)
                 member = guild.get_member(ctx.author.id)
-                role = discord.utils.get(guild.roles, name="dev-testing") # TODO: change to actual role name
+                role = discord.utils.get(guild.roles, name=self.VERIFIED_ROLE_NAME) # TODO: change to actual role name
                 
                 if role not in member.roles:
                     await member.add_roles(role)
