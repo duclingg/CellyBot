@@ -19,7 +19,6 @@ class TikTok:
         
         self.tiktok = tiktok
         self.client = TikTokLiveClient(unique_id=f"@{self.tiktok}")
-        self.is_live = False
         self.live_link = f"https://www.tiktok.com/@{self.tiktok}/live"
                 
         # attach event handlers
@@ -29,6 +28,7 @@ class TikTok:
         
         self.client.logger.setLevel(LogLevel.INFO.value)
         
+        # initialize alert flags
         self.alert_sent = False
         self.alert_sent_date = None
         self.tz = pytz.timezone('US/Central')
@@ -39,7 +39,7 @@ class TikTok:
         """
         while True:
             while not await self.client.is_live():
-                self.client.logger.info(f"\n`{self.tiktok}` is currently not live.\nChecking again in 60 seconds.\n")
+                self.client.logger.info(f"\n`@{self.tiktok}` is currently not live.\nChecking again in 60 seconds.\n")
                 await asyncio.sleep(60)
                 
             self.client.logger.info("Requested client is live.")
@@ -47,12 +47,12 @@ class TikTok:
                 
     async def on_connect(self, event: ConnectEvent):
         """
-        When connected to live stream, send alert to Discord Channel
+        When connected to live stream, send alert to Discord Channel. Alert is only sent once per day.
 
         Args:
-            event (ConnectEvent): Connects to the Event using the `TikTokLive` API
+            event (ConnectEvent): Connects to the live using the `TikTokLive` API
         """
-        self.client.logger.info(f"(ConnectEvent) Connected to @{event.unique_id}")
+        self.client.logger.info(f"(ConnectEvent) Connected to `@{event.unique_id}`")
         
         now = datetime.now(self.tz)
         current_date = now.date()
@@ -74,23 +74,52 @@ class TikTok:
                 self.alert_sent_date = current_date
         
     async def on_disconnect(self, event: DisconnectEvent):
-        self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}, reconnecting...")
+        """
+        When client disconnects, log and attempt to reconnect.
+        
+        Args:
+            event (DisconnectEvent): Disconnected from the live client.
+        """
+        self.client.logger.info(f"(DisconnectEvent) Disconnected from `@{self.tiktok}`, reconnecting...")
     
     async def on_live_end(self, event: LiveEndEvent):
-        self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from @{self.tiktok}")
+        """
+        Detects if the live is ending by the client.
+
+        Args:
+            event (LiveEndEvent): Live detected as ending, disconnect after.
+        """
+        self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from `@{self.tiktok}`")
             
     def in_timeframe(self, current_time):
-        start_time = time(11, 0)
-        end_time = time(23, 0)
+        """
+        Returns a Boolean if the `current_time` is within the specified timeframe (US/Central).
+
+        Args:
+            current_time (datetime): The current time
+
+        Returns:
+            Bool: Returns True if the `current_time` is within the timeframe, False otherwise.
+        """
+        start_time = time(11,0)
+        end_time = time(23,0)
         
         return start_time <= current_time <= end_time
     
     async def run_client(self):
-        now = datetime.now(self.tz)
-        current_time = now.time()
+        """
+        Starts the TikTokLive client if it's within the specific timeframe. Continuously checks if the current time falls within the timeframe.
+        """
+        while True:
+            now = datetime.now(self.tz)
+            current_time = now.time()
         
-        if self.in_timeframe(current_time):
-            await self.check_live()
+            if self.in_timeframe(current_time):
+                await self.check_live()
+                self.client.logger.info("Starting live checks.")
+            else:
+                self.client.logger.info("Not within timeframe, TikTokLive client not started. Checking again in 60 seconds.")
+                await asyncio.sleep(60)
         
     def check_followers(self):
         pass
