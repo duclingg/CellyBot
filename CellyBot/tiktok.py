@@ -31,7 +31,7 @@ class TikTok:
         
         self.alert_sent = False
         self.alert_sent_date = None
-        self.tz = pytz.timezone('US/Mountain')
+        self.tz = pytz.timezone('US/Central')
         
     async def check_live(self):
         """
@@ -61,7 +61,7 @@ class TikTok:
             self.alert_sent_date = None
         
         if self.alert_sent_date is None:
-            # send alert with link and timestamp if live
+            # send and publish alert with link and timestamp if live
             channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
             if channel:
                 now = datetime.now(pytz.timezone('US/Central'))
@@ -69,20 +69,19 @@ class TikTok:
                 msg = await channel.send(
                     f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}"
                 )
-                # await msg.publish()
+                await msg.publish()
                 self.client.logger.info("Alert sent and published to `stream-schedule` channel.")
                 self.alert_sent_date = current_date
         
     async def on_disconnect(self, event: DisconnectEvent):
-        self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}")
-        # await self.client.start()
+        self.client.logger.info(f"(DisconnectEvent) Disconnected from @{self.tiktok}, reconnecting...")
     
     async def on_live_end(self, event: LiveEndEvent):
         self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from @{self.tiktok}")
             
     def in_timeframe(self, current_time):
         start_time = time(11, 0)
-        end_time = time(23, 59)
+        end_time = time(23, 0)
         
         return start_time <= current_time <= end_time
     
