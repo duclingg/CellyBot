@@ -1,8 +1,13 @@
+import os
 import sqlite3
 
 class FollowerStore:
     def __init__(self):
-        self.conn = sqlite3.connect("followers.db")
+        # always resolve path relative to this file (in database/)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.db_path = os.path.join(base_dir, "followers.db")
+        self.conn = sqlite3.connect(self.db_path)
+        
         self.conn.execute("""
             CREATE TABLE IF NOT EXISTS followers (
                 username TEXT PRIMARY KEY
