@@ -5,7 +5,7 @@ class FollowerStore:
     def __init__(self):
         # always resolve path relative to this file (in database/)
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.db_path = os.path.join(base_dir, "followers.db")
+        self.db_path = os.path.join(base_dir, "followers_test.db") # TODO: change to followers.db after done testing
         self.conn = sqlite3.connect(self.db_path)
         
         self.conn.execute("""
