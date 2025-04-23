@@ -1,10 +1,11 @@
 import asyncio
 import pytz
+import csv
 
 from datetime import datetime, time
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
-from TikTokLive.events import ConnectEvent, DisconnectEvent, LiveEndEvent
+from TikTokLive.events import ConnectEvent, DisconnectEvent, LiveEndEvent, FollowEvent
 
 class TikTok:
     def __init__(self, bot, tiktok: str):
@@ -25,6 +26,7 @@ class TikTok:
         self.client.add_listener(ConnectEvent, self.on_connect)
         self.client.add_listener(DisconnectEvent, self.on_disconnect)
         self.client.add_listener(LiveEndEvent, self.on_live_end)
+        self.client.add_listener(FollowEvent, self.on_follow)
         
         self.client.logger.setLevel(LogLevel.INFO.value)
         
@@ -69,7 +71,7 @@ class TikTok:
                 msg = await channel.send(
                     f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}"
                 )
-                await msg.publish()
+                # await msg.publish()
                 self.client.logger.info("Alert sent and published to `stream-schedule` channel.")
                 self.alert_sent_date = current_date
         
@@ -90,7 +92,16 @@ class TikTok:
             event (LiveEndEvent): Live detected as ending, disconnect after.
         """
         self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from `@{self.tiktok}`")
-            
+        self.client.disconnect()
+        
+    async def on_follow(self, event: FollowEvent):
+        username = event.user.unique_id
+        self.client.logger.info(f"(FollowEvent) `@{username}` followed `@{self.tiktok}`")
+        
+        with open("../data/test_followers.csv", mode="a", newline="\n") as file:
+            writer = csv.writer(file)
+            writer.writerow([username])
+        
     def in_timeframe(self, current_time):
         """
         Returns a Boolean if the `current_time` is within the specified timeframe (US/Central).
@@ -120,6 +131,3 @@ class TikTok:
             else:
                 self.client.logger.info("Not within timeframe, TikTokLive client not started. Checking again in 60 seconds.")
                 await asyncio.sleep(60)
-        
-    def check_followers(self):
-        pass
