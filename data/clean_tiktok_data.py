@@ -9,8 +9,8 @@ def clean_tiktok_data(file):
     lines = [lines[i] for i in range(len(lines)) if i % 2 != 0] # only keep every other one - keep unique_id, disgard nickname
     lines.reverse() # currently order in stack, reverse to order in a queue
     
-    tiktok_usernames = pd.DataFrame(lines)
+    tiktok_usernames = pd.DataFrame({'username': lines})
     
-    return tiktok_usernames.to_csv('tiktok_followers.csv', index=False, header=None)
+    return tiktok_usernames.to_csv('tiktok_followers.csv', index=False)
 
 clean_tiktok_data("tiktok_followers.txt")

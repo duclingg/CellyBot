@@ -3,7 +3,7 @@ import asyncio
 from discord_bot import *
 
 async def cellybot():
-    bot = DiscordBot(tiktok="happyhappygaltv")
+    bot = DiscordBot(tiktok="nahcelly")
     
     await bot.run()
 
