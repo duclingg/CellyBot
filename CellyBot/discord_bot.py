@@ -70,6 +70,8 @@ class DiscordBot:
                     await member.add_roles(role)
                     await ctx.send(f"You've been verified!")
                     print(f"[CellyBot] INFO - `@{username}` verified.\n")
+                else:
+                    print(f"[CellyBot] ERROR - `@{username}` already verified.\n") # TODO: Remove after testing
             else:
                 await ctx.send(f"Could not verify `@{username}` as a follower.\nPlease follow `@{self.tiktok}` on TikTok and try again.")
                 print(f"[CellyBot] INFO - `@{username}` could not be verified.\n")
