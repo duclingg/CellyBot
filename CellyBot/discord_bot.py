@@ -44,7 +44,7 @@ class DiscordBot:
         @self.bot.event
         async def on_ready():
             print("\n---------------------------------------------------------------------")
-            print(f"[CellyBot] INFO: Logged in as {self.bot.user} (ID: {self.bot.user.id})")
+            print(f"[CellyBot] INFO - Logged in as {self.bot.user} (ID: {self.bot.user.id})")
             print("---------------------------------------------------------------------\n")
             
             # wait for discord bot to start and check live status
@@ -71,7 +71,7 @@ class DiscordBot:
                     await ctx.send(f"You've been verified!")
                     print(f"[CellyBot] INFO - `@{username}` verified.\n")
                 else:
-                    print(f"[CellyBot] ERROR - `@{username}` already verified.\n") # TODO: Remove after testing
+                    print(f"[CellyBot] DEBUG - `@{username}` already verified.\n") # TODO: Remove after testing
             else:
                 await ctx.send(f"Could not verify `@{username}` as a follower.\nPlease follow `@{self.tiktok}` on TikTok and try again.")
                 print(f"[CellyBot] INFO - `@{username}` could not be verified.\n")

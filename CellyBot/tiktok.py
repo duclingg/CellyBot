@@ -42,7 +42,8 @@ class TikTok:
         """
         while True:
             while not await self.client.is_live():
-                self.client.logger.info(f"\n`@{self.tiktok}` is currently not live.\nChecking again in 60 seconds.\n")
+                self.client.logger.info(f"`@{self.tiktok}` is currently not live.")
+                self.client.logger.info("Checking again in 60 seconds.\m")
                 await asyncio.sleep(60)
                 
             self.client.logger.info("Requested client is live.")
