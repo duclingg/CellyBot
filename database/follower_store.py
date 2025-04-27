@@ -1,11 +1,15 @@
 import os
 import sqlite3
 
+from CellyBotLogger import *
+
 class FollowerStore:
     def __init__(self):
+        self.logger = CellyBotLogger()
+        
         # always resolve path relative to this file (in database/)
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.db_path = os.path.join(base_dir, "followers_test.db") # TODO: change to followers.db after done testing
+        self.db_path = os.path.join(base_dir, "followers.db")
         self.conn = sqlite3.connect(self.db_path)
         
         self.conn.execute("""
@@ -20,8 +24,10 @@ class FollowerStore:
         try:
             self.conn.execute("INSERT INTO followers (username) VALUES (?)", (username,))
             self.conn.commit()
+            self.logger.info(f"`@{username}` successfully added to follower list.")
             return True # successfully added
         except sqlite3.IntegrityError:
+            self.logger.error(f"Could not add `@{username}` to follower list, user is already following.")
             return False # already exists
     
     def check_follower(self, username):

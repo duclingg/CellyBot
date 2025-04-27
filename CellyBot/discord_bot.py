@@ -5,6 +5,7 @@ import sys
 # Add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from CellyBotLogger import *
 from tiktok import *
 from database.follower_store import FollowerStore
 from dotenv import load_dotenv
@@ -19,6 +20,8 @@ class DiscordBot:
             tiktok (str): The username of the TikTok streamer to be used. `@` symbol is not required.
         """
         load_dotenv(override=True)
+        
+        self.logger = CellyBotLogger()
         
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
@@ -43,9 +46,7 @@ class DiscordBot:
     def setup(self):
         @self.bot.event
         async def on_ready():
-            print("\n---------------------------------------------------------------------")
-            print(f"[CellyBot] INFO - Logged in as {self.bot.user} (ID: {self.bot.user.id})")
-            print("---------------------------------------------------------------------\n")
+            self.logger.start_log(self.bot.user, self.bot.user.id)
             
             # wait for discord bot to start and check live status
             if self.tiktok_client:
@@ -57,7 +58,8 @@ class DiscordBot:
             await ctx.send(f"Checking if `@{username}` follows `@{self.tiktok}`")
             
             verified = self.verify_follower(username)
-            print(f"\n[CellyBot] INFO - Verifying user `@{username}`")
+            self.logger.info(f"Verifying user `@{username}")
+            # print(f"\n[CellyBot] INFO - Verifying user `@{username}`")
             
             await asyncio.sleep(1)
             
@@ -69,12 +71,12 @@ class DiscordBot:
                 if role not in member.roles:
                     await member.add_roles(role)
                     await ctx.send(f"You've been verified!")
-                    print(f"[CellyBot] INFO - `@{username}` verified.\n")
+                    self.logger.info(f"`@{username}` verified.\n")
                 else:
-                    print(f"[CellyBot] DEBUG - `@{username}` already verified.\n") # TODO: Remove after testing
+                    self.logger.debug(f"`@{username}` already verified.\n")
             else:
                 await ctx.send(f"Could not verify `@{username}` as a follower.\nPlease follow `@{self.tiktok}` on TikTok and try again.")
-                print(f"[CellyBot] INFO - `@{username}` could not be verified.\n")
+                self.logger.error(f"`@{username}` could not be verified.\n")
                 
     def verify_follower(self, username):
         store = FollowerStore()
