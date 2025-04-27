@@ -1,8 +1,8 @@
 import asyncio
 import pytz
-import csv
 
 from datetime import datetime, time
+from CellyBotLogger import *
 from database.follower_store import FollowerStore
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
@@ -18,6 +18,7 @@ class TikTok:
             tiktok (str): The username of the TikTok streamer to be used. `@` symbol is not required.
         """      
         self.discord_bot = bot
+        self.logger = CellyBotLogger()
         
         self.tiktok = tiktok
         self.client = TikTokLiveClient(unique_id=f"@{self.tiktok}")
@@ -43,7 +44,7 @@ class TikTok:
         while True:
             while not await self.client.is_live():
                 self.client.logger.info(f"`@{self.tiktok}` is currently not live.")
-                self.client.logger.info("Checking again in 60 seconds.\m")
+                self.client.logger.info("Checking again in 60 seconds.\n")
                 await asyncio.sleep(60)
                 
             self.client.logger.info("Requested client is live.")
@@ -73,8 +74,8 @@ class TikTok:
                 msg = await channel.send(
                     f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}"
                 )
-                # await msg.publish()
-                self.client.logger.info("Alert sent and published to `stream-schedule` channel.")
+                await msg.publish()
+                self.logger.info("Alert sent and published to `#stream-schedule` channel.")
                 self.alert_sent_date = current_date
         
     async def on_disconnect(self, event: DisconnectEvent):
@@ -98,7 +99,7 @@ class TikTok:
         
     async def on_follow(self, event: FollowEvent):
         username = event.user.unique_id
-        self.client.logger.info(f"(FollowEvent) `@{username}` followed `@{self.tiktok}`, adding to database.")
+        self.client.logger.info(f"(FollowEvent) `@{username}` followed `@{self.tiktok}`.")
         
         store = FollowerStore()
         store.add_follower(username)
@@ -114,7 +115,7 @@ class TikTok:
             Bool: Returns True if the `current_time` is within the timeframe, False otherwise.
         """
         start_time = time(11,0)
-        end_time = time(23,59)
+        end_time = time(23,0)
         
         return start_time <= current_time <= end_time
     
