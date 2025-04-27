@@ -3,6 +3,7 @@ import pytz
 import csv
 
 from datetime import datetime, time
+from database.follower_store import FollowerStore
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
 from TikTokLive.events import ConnectEvent, DisconnectEvent, LiveEndEvent, FollowEvent
@@ -41,7 +42,8 @@ class TikTok:
         """
         while True:
             while not await self.client.is_live():
-                self.client.logger.info(f"\n`@{self.tiktok}` is currently not live.\nChecking again in 60 seconds.\n")
+                self.client.logger.info(f"`@{self.tiktok}` is currently not live.")
+                self.client.logger.info("Checking again in 60 seconds.\m")
                 await asyncio.sleep(60)
                 
             self.client.logger.info("Requested client is live.")
@@ -96,11 +98,10 @@ class TikTok:
         
     async def on_follow(self, event: FollowEvent):
         username = event.user.unique_id
-        self.client.logger.info(f"(FollowEvent) `@{username}` followed `@{self.tiktok}`")
+        self.client.logger.info(f"(FollowEvent) `@{username}` followed `@{self.tiktok}`, adding to database.")
         
-        with open("../data/test_followers.csv", mode="a", newline="\n") as file:
-            writer = csv.writer(file)
-            writer.writerow([username])
+        store = FollowerStore()
+        store.add_follower(username)
         
     def in_timeframe(self, current_time):
         """
@@ -113,7 +114,7 @@ class TikTok:
             Bool: Returns True if the `current_time` is within the timeframe, False otherwise.
         """
         start_time = time(11,0)
-        end_time = time(23,0)
+        end_time = time(23,59)
         
         return start_time <= current_time <= end_time
     
