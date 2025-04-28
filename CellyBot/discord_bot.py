@@ -5,9 +5,8 @@ import sys
 # Add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from CellyBotLogger import *
+from logger import CellyBotLogger
 from tiktok import *
-from database.follower_store import FollowerStore
 from dotenv import load_dotenv
 from discord.ext import commands
 

@@ -2,7 +2,7 @@ import asyncio
 import pytz
 
 from datetime import datetime, time
-from CellyBotLogger import *
+from logger import CellyBotLogger
 from database.follower_store import FollowerStore
 from TikTokLive import TikTokLiveClient
 from TikTokLive.client.logger import LogLevel
