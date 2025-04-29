@@ -25,7 +25,7 @@ class DiscordBot:
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
         self.VERIFIED_ROLE_NAME = os.getenv("VERIFIED_ROLE_NAME")
-        self.VERIFICATION_MESSAGE_ID = os.getenv("VERIFICATION_MESSAGE_ID")
+        self.VERIFICATION_MESSAGE_ID = int(os.getenv("VERIFICATION_MESSAGE_ID"))
         self.CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
         
         self.tiktok = tiktok
@@ -47,6 +47,9 @@ class DiscordBot:
     def setup(self):
         @self.bot.event
         async def on_ready():
+            """
+            Starts the bot when ready. Starts the TikTokLive client after bot is initialized.
+            """
             self.logger.start_log(self.bot.user, self.bot.user.id)
             
             # wait for discord bot to start and check live status
@@ -55,7 +58,13 @@ class DiscordBot:
             
     def verify(self):
         @self.bot.event
-        async def on_raw_reaction_add(payload):            
+        async def on_raw_reaction_add(payload):
+            """
+            Verifies the user when joining with a reaction to a message. Assigns the role to the member to allow access to all channels.
+            
+            Args:
+                payload: Discord payload
+            """            
             # ignore bot reactions
             if payload.member and payload.member.bot:
                 self.logger.info("Ignoring bot reaction")
