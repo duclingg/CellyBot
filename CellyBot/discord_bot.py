@@ -5,9 +5,8 @@ import sys
 # Add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from CellyBotLogger import *
+from logger import CellyBotLogger
 from tiktok import *
-from database.follower_store import FollowerStore
 from dotenv import load_dotenv
 from discord.ext import commands
 
@@ -26,6 +25,7 @@ class DiscordBot:
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
         self.VERIFIED_ROLE_NAME = os.getenv("VERIFIED_ROLE_NAME")
+        self.VERIFICATION_MESSAGE_ID = os.getenv("VERIFICATION_MESSAGE_ID")
         self.CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
         
         self.tiktok = tiktok
@@ -35,6 +35,7 @@ class DiscordBot:
         # intents required
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.reactions = True
         intents.members = True
 
         # initialize bot with commands
@@ -53,34 +54,42 @@ class DiscordBot:
                 self.tiktok_task = await self.tiktok_client.run_client()
             
     def verify(self):
-        @self.bot.command()
-        async def verify(ctx, username: str):
-            await ctx.send(f"Checking if `@{username}` follows `@{self.tiktok}`")
+        @self.bot.event
+        async def on_raw_reaction_add(payload):            
+            # ignore bot reactions
+            if payload.member and payload.member.bot:
+                self.logger.info("Ignoring bot reaction")
+                return
             
-            verified = self.verify_follower(username)
-            self.logger.info(f"Verifying user `@{username}")
-            # print(f"\n[CellyBot] INFO - Verifying user `@{username}`")
-            
-            await asyncio.sleep(1)
-            
-            if verified:
-                guild = discord.utils.get(self.bot.guilds, id=self.GUILD_ID)
-                member = guild.get_member(ctx.author.id)
-                role = discord.utils.get(guild.roles, name=self.VERIFIED_ROLE_NAME)
+            # check if correct message
+            if payload.message_id == self.VERIFICATION_MESSAGE_ID:
+                self.logger.info(f"Reaction on verification message - Emoji: {payload.emoji}")
                 
-                if role not in member.roles:
-                    await member.add_roles(role)
-                    await ctx.send(f"You've been verified!")
-                    self.logger.info(f"`@{username}` verified.\n")
-                else:
-                    self.logger.debug(f"`@{username}` already verified.\n")
-            else:
-                await ctx.send(f"Could not verify `@{username}` as a follower.\nPlease follow `@{self.tiktok}` on TikTok and try again.")
-                self.logger.error(f"`@{username}` could not be verified.\n")
-                
-    def verify_follower(self, username):
-        store = FollowerStore()
-        return store.check_follower(username)
+                # check if it's the correct emoji
+                if str(payload.emoji) == "✅":
+                    self.logger.info("Correct emoji detected")
+                    
+                    try:
+                        guild = self.bot.get_guild(payload.guild_id)
+                        if not guild:
+                            self.logger.error(f"Could not find guild with ID {payload.guild_id}")
+                            return
+                        
+                        # add verified role to member
+                        role = discord.utils.get(guild.roles, name=self.VERIFIED_ROLE_NAME)
+                        if not role:
+                            self.logger.error(f"Could not find role with name {self.VERIFIED_ROLE_NAME}")
+                            return
+                        
+                        if payload.member and role not in payload.member.roles:
+                            await payload.member.add_roles(role)
+                            self.logger.info(f"Successfully added role {self.VERIFIED_ROLE_NAME} to {payload.member.display_name}")
+                        elif payload.member:
+                            self.logger.info(f"User {payload.member.display_name} already has the role {self.VERIFIED_ROLE_NAME}")
+                        else:
+                            self.logger.error("Could not get member information from payload")
+                    except Exception as e:
+                        self.logger.error(f"Error assigning role: {str(e)}")
                 
     async def run(self):
         await self.bot.start(self.TOKEN)
