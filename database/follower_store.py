@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-from CellyBotLogger import *
+from logger import CellyBotLogger
 
 class FollowerStore:
     def __init__(self):
