@@ -25,7 +25,7 @@ class DiscordBot:
         self.TOKEN = os.getenv("DISCORD_TOKEN")
         self.GUILD_ID = int(os.getenv("GUILD_ID"))
         self.VERIFIED_ROLE_NAME = os.getenv("VERIFIED_ROLE_NAME")
-        self.VERIFICATION_MESSAGE_ID = os.getenv("VERIFICATION_MESSAGE_ID")
+        self.VERIFICATION_MESSAGE_ID = int(os.getenv("VERIFICATION_MESSAGE_ID"))
         self.CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
         
         self.tiktok = tiktok
