@@ -43,6 +43,7 @@ class DiscordBot:
         
         self.setup()
         self.verify()
+        self.commands()
         
     def setup(self):
         @self.bot.event
@@ -99,6 +100,25 @@ class DiscordBot:
                             self.logger.error("Could not get member information from payload")
                     except Exception as e:
                         self.logger.error(f"Error assigning role: {str(e)}")
+                        
+    def commands(self):
+        @self.bot.command()
+        async def info(ctx):
+            text = """
+                # CellyBot Info
+                ## Available Commands:  
+                \n`!info` - Pulls up this info box
+                \n`!greet` - Say hi to CellyBot
+                \n`!bullyNik` - Bullies Nikalaus
+                
+                ## Want information about `@nahcelly`?
+                ### Check out <#1362957662366728405> for annoucments of when he's live!
+                ### Socials:
+                \nTikTok: <https://www.tiktok.com/@nahcelly?_t=ZT-8veRvjBgeru&_r=1>
+                \nYouTube: <https://youtube.com/@nahcelly?si=dELq4_AFHoVUcmml>
+                \nTwitch: <https://www.twitch.tv/nahcelly>
+            """
+            await ctx.send(text)
                 
     async def run(self):
         await self.bot.start(self.TOKEN)
