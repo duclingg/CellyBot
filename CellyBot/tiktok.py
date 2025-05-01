@@ -47,7 +47,10 @@ class TikTok:
                 self.client.logger.info("Checking again in 60 seconds.\n")
                 await asyncio.sleep(60)
                 
-            self.client.logger.info("Requested client is live.")
+            now = datetime.now(self.tz)
+            timestamp = now.strftime("%m/%d/%y %H:%M:%S")
+                
+            self.client.logger.info(f"{timestamp} (US/Central) - Requested client is live.")
             await self.client.connect()
                 
     async def on_connect(self, event: ConnectEvent):
@@ -69,7 +72,6 @@ class TikTok:
             # send and publish alert with link and timestamp if live
             channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
             if channel:
-                now = datetime.now(pytz.timezone('US/Central'))
                 timestamp = now.strftime("`%m/%d/%y`\n`%I:%M %p`")
                 msg = await channel.send(
                     f"# `@{self.tiktok}` is **LIVE** on TikTok!\n### Date/Time: \n{timestamp} ***Central***\n## Join the stream:\n{self.live_link}"
@@ -85,7 +87,9 @@ class TikTok:
         Args:
             event (DisconnectEvent): Disconnected from the live client.
         """
-        self.client.logger.info(f"(DisconnectEvent) Disconnected from `@{self.tiktok}`, reconnecting...")
+        now = datetime.now(self.tz)            
+        timestamp = now.strftime("%m/%d/%y %H:%M:%S")
+        self.client.logger.info(f"{timestamp} (US/Central) - (DisconnectEvent) Disconnected from `@{self.tiktok}`.")
     
     async def on_live_end(self, event: LiveEndEvent):
         """
@@ -98,6 +102,12 @@ class TikTok:
         await self.client.disconnect()
         
     async def on_follow(self, event: FollowEvent):
+        """
+        Tracks when a user follows the livestreamer. Tracks the unique_id (username) of the user and adds it to the following database.
+
+        Args:
+            event (FollowEvent): Follow event detected.
+        """
         username = event.user.unique_id
         self.client.logger.info(f"(FollowEvent) `@{username}` followed `@{self.tiktok}`.")
         
@@ -125,11 +135,12 @@ class TikTok:
         """
         while True:
             now = datetime.now(self.tz)
-            current_time = now.time()
+            current_time = now.time()            
+            timestamp = now.strftime("%m/%d/%y %H:%M:%S")
         
             if self.in_timeframe(current_time):
                 await self.check_live()
                 self.client.logger.info("Starting live checks.")
             else:
-                self.client.logger.info("Not within timeframe, TikTokLive client not started. Checking again in 60 seconds.")
-                await asyncio.sleep(60)
+                self.client.logger.info(f"{timestamp} (US/Central) - Not within timeframe, TikTokLive client not started. Checking again in 1 hour.")
+                await asyncio.sleep(3600)

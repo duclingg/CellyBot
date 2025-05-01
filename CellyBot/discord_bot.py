@@ -1,6 +1,7 @@
 import os
 import discord
 import sys
+import random
 
 # Add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -119,6 +120,27 @@ class DiscordBot:
                 \nTwitch: <https://www.twitch.tv/nahcelly>
             """
             await ctx.send(text)
+            
+        @self.bot.command()
+        async def greet(ctx):
+            messages = [
+                "Hey there CellyFam!",
+                "What the Celly?",
+                "Yoooooo",
+                "Thanks for the follow!",
+                "Beep boop."
+            ]
+            await ctx.send(random.choice(messages))
+            
+        @self.bot.command()
+        async def bullyNik(ctx):
+            messages = [
+                "Nik is a good boy",
+                "Nik can't beat me in a 1v1",
+                "Nik sucks!",
+                "I heard Nik uses simple edit"
+            ]
+            await ctx.send(random.choice(messages))
                 
     async def run(self):
         await self.bot.start(self.TOKEN)
