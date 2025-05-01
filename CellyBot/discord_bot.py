@@ -54,6 +54,12 @@ class DiscordBot:
             """
             self.logger.start_log(self.bot.user, self.bot.user.id)
             
+            try:
+                synced = await self.bot.tree.sync(guild=discord.Object(id=self.GUILD_ID))
+                self.logger.info(f"Synced {len(synced)} commands to guild: {self.GUILD_ID}")
+            except Exception as e:
+                self.logger.error(f"Error syncing to command tree: {e}")
+            
             # wait for discord bot to start and check live status
             if self.tiktok_client:
                 self.tiktok_task = await self.tiktok_client.run_client()
@@ -103,8 +109,8 @@ class DiscordBot:
                         self.logger.error(f"Error assigning role: {str(e)}")
                         
     def commands(self):
-        @self.bot.command()
-        async def info(ctx):
+        @self.bot.tree.command(name="info", description="Display information about CellyBot commands", guild=discord.Object(id=self.GUILD_ID))
+        async def info(interaction: discord.Interaction):
             message = """
                 # CellyBot Info
                 ## Available Commands:  
@@ -113,10 +119,10 @@ class DiscordBot:
                 \n`!greet` - Say hi to CellyBot
                 \n`!bullyNik` - CellyBot will bully Nikalaus
             """
-            await ctx.send(message)
+            await interaction.response.send_message(message)
             
-        @self.bot.command()
-        async def socials(ctx):
+        @self.bot.tree.command(name="socials", description="Lists NahCelly's socials", guild=discord.Object(id=self.GUILD_ID))
+        async def socials(interaction: discord.Interaction):
             message = f"""
                 ## NahCelly's Socials:
                 ### Check out <#{self.CHANNEL_ID}> for annoucments of when he's live!
@@ -124,10 +130,10 @@ class DiscordBot:
                 \nYouTube: https://youtube.com/@nahcelly?si=dELq4_AFHoVUcmml
                 \nTwitch: https://www.twitch.tv/nahcelly
             """
-            await ctx.send(message)
+            await interaction.response.send_message(message)
             
-        @self.bot.command()
-        async def greet(ctx):
+        @self.bot.tree.command(name="greet", description="Greet CellyBot!", guild=discord.Object(id=self.GUILD_ID))
+        async def greet(interaction: discord.Interaction):
             messages = [
                 "Hey there CellyFam!",
                 "What the Celly?",
@@ -135,17 +141,17 @@ class DiscordBot:
                 "Thanks for the follow!",
                 "Beep boop."
             ]
-            await ctx.send(random.choice(messages))
+            await interaction.response.send_message(random.choice(messages))
             
-        @self.bot.command()
-        async def bullyNik(ctx):
+        @self.bot.tree.command(name="bully-nik", description="Bully Nikalaus :)", guild=discord.Object(id=self.GUILD_ID))
+        async def bully_nik(interaction: discord.Interaction):
             messages = [
                 "Nik is a good boy",
                 "Nik can't beat me in a 1v1",
                 "Nik sucks!",
                 "I heard Nik uses simple edit"
             ]
-            await ctx.send(random.choice(messages))
+            await interaction.response.send_message(random.choice(messages))
                 
     async def run(self):
         await self.bot.start(self.TOKEN)
