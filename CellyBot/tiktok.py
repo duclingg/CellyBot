@@ -95,7 +95,7 @@ class TikTok:
             event (LiveEndEvent): Live detected as ending, disconnect after.
         """
         self.client.logger.info(f"(LiveEndEvent) Live streaming ending, disconnecting from `@{self.tiktok}`")
-        self.client.disconnect()
+        await self.client.disconnect()
         
     async def on_follow(self, event: FollowEvent):
         username = event.user.unique_id
