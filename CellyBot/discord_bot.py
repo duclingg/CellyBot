@@ -105,21 +105,26 @@ class DiscordBot:
     def commands(self):
         @self.bot.command()
         async def info(ctx):
-            text = """
+            message = """
                 # CellyBot Info
                 ## Available Commands:  
                 \n`!info` - Pulls up this info box
+                \n`!socials` - Get Celly's socials!
                 \n`!greet` - Say hi to CellyBot
-                \n`!bullyNik` - Bullies Nikalaus
-                
-                ## Want information about `@nahcelly`?
-                ### Check out <#1362957662366728405> for annoucments of when he's live!
-                ### Socials:
-                \nTikTok: <https://www.tiktok.com/@nahcelly?_t=ZT-8veRvjBgeru&_r=1>
-                \nYouTube: <https://youtube.com/@nahcelly?si=dELq4_AFHoVUcmml>
-                \nTwitch: <https://www.twitch.tv/nahcelly>
+                \n`!bullyNik` - CellyBot will bully Nikalaus
             """
-            await ctx.send(text)
+            await ctx.send(message)
+            
+        @self.bot.command()
+        async def socials(ctx):
+            message = f"""
+                ## NahCelly's Socials:
+                ### Check out <#{self.CHANNEL_ID}> for annoucments of when he's live!
+                \nTikTok: https://www.tiktok.com/@nahcelly?_t=ZT-8veRvjBgeru&_r=1
+                \nYouTube: https://youtube.com/@nahcelly?si=dELq4_AFHoVUcmml
+                \nTwitch: https://www.twitch.tv/nahcelly
+            """
+            await ctx.send(message)
             
         @self.bot.command()
         async def greet(ctx):
