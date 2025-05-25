@@ -17,7 +17,7 @@ class TikTok:
             bot (DiscordBot): The Discord bot to be used for alerts and verification.
             tiktok (str): The username of the TikTok streamer to be used. `@` symbol is not required.
         """      
-        self.discord_bot = bot
+        self.bot = bot
         self.logger = CellyBotLogger()
         
         self.tiktok = tiktok
@@ -70,7 +70,7 @@ class TikTok:
         
         if self.alert_sent_date is None:
             # send and publish alert with link and timestamp if live
-            channel = self.discord_bot.bot.get_channel(self.discord_bot.CHANNEL_ID)
+            channel = self.bot.bot.get_channel(self.bot.CHANNEL_ID)
             if channel:
                 timestamp = now.strftime("`%m/%d/%y`\n`%I:%M %p`")
                 msg = await channel.send(

@@ -11,7 +11,7 @@ from tiktok import *
 from dotenv import load_dotenv
 from discord.ext import commands
 
-class DiscordBot:
+class Bot:
     def __init__(self, tiktok: str):
         """
         This object initializes the Discord Bot, setting the required intents to be used by the bot.
